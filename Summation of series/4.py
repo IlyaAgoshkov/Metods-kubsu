@@ -1,24 +1,29 @@
-import math
-def _err(precision):
-    e = 1.0
-    term = 1.0
-    n = 1
-    while abs(term) >= 10**(-precision):
-        n += 1
-        term = 1.0 / math.factorial(n**2+1)
-        e += term
-    return e
-n = int(input("Введите кол-во операций: "))
-row1 = 0
-for i in range(1, n + 1):
-    row1 += 1 / (math.pow(i, 2) + 1)
+import numpy as np
 
-print("Результат обычного ряда для " + str(n) + " операций равен " + str(row1))
-row2 = 0
-for i in range(1, n + 1):    row2 += 1 / (math.pow(i, 4) * (math.pow(i, 2) + 1))
-row2 = (math.pow(math.pi, 2) / 6) - (math.pow(math.pi, 4) / 90) + row2
-print("Результат ряда с использованием преобразования для " + str(n) + " операций равен " + str(row2))
-print("Разница в вычислениях составляет " + str(round(row2 - row1, 10)))
-precision = 10
-print()
-print(f"Ошибка меньше десятого десятичного значащего разряда равна {_err(precision)}")
+# Функция для оценки суммы ряда с заданной точностью
+def estimate_series(precision):
+    sum_series = 0.0
+    n = 1
+    while True:
+        term = 1 / (n**2 + 1)
+        sum_series += term
+        if term < precision:
+            break
+        n += 1
+    return sum_series, n
+
+# Подсказка предлагает использовать известные суммы 1/n^2 и 1/n^4 для оценки ошибки
+pi_squared_over_six = np.pi**2 / 6
+pi_fourth_over_ninety = np.pi**4 / 90
+
+# Расчет приблизительной оценки ошибки
+def error_approximation(n):
+    return (pi_squared_over_six - (1 / (n**2))) - (pi_fourth_over_ninety - (1 / (n**4)))
+
+# Рассчитываем сумму с ошибкой меньше одной десятой
+sum_result, terms_used = estimate_series(1e-1)
+
+# Расчет приблизительной оценки ошибки
+error_estimate = error_approximation(terms_used)
+
+print(sum_result, terms_used, error_estimate)
